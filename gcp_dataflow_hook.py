@@ -142,10 +142,12 @@ class DataFlowHook(GoogleCloudBaseHook):
 
     def start_java_dataflow(self, task_id, variables, dataflow):
         #name = task_id + "-" + str(uuid.uuid1())[:8]
-        name = task_id.lower().replace("_", "-") + "-" + str(uuid.uuid1())[:8]
         if variables['jobName'] is not None:
             variables['jobName'] = variables['jobName'].lower().replace("_", "-") + "-" + str(uuid.uuid1())[:8]
-        # 'name' which is used for dataflow job name, is totally useless if variable['jobName'] is not None, but is required to run this code.
+            name = variables['jobName']
+        else:
+            name = task_id.lower().replace("_", "-") + "-" + str(uuid.uuid1())[:8]
+        # 'name' is also used to track dataflow state, so variable['jobName'] and 'name' must be the same.
         self._start_dataflow(
             task_id, variables, dataflow, name, ["java", "-jar"])
 
@@ -154,6 +156,9 @@ class DataFlowHook(GoogleCloudBaseHook):
         name = task_id.lower().replace("_", "-") + "-" + str(uuid.uuid1())[:8]
         if variables['jobName'] is not None:
             variables['jobName'] = variables['jobName'].lower().replace("_", "-") + "-" + str(uuid.uuid1())[:8]
+            name = variables['jobName']
+        else:
+            name = task_id.lower().replace("_", "-") + "-" + str(uuid.uuid1())[:8]
         self._start_dataflow(
             task_id, variables, dataflow, name, ["python"] + py_options)
 
